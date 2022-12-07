@@ -31,6 +31,15 @@ def linear_transform(img, shift=0):
     return img + shift
 
 
+def stretching(img, a=1):
+    new_img = np.ndarray(img.shape)
+    i_max = np.max(img)
+    i_min = np.min(img)
+    for j in range(img.shape[0]):
+        for k in range(len(img.shape[1])):
+            new_img[j][k] = pow((img[j][k] - i_min)/(i_max - i_min), a)
+
+
 def plot_hists_images(hist1, img1, hist2, img2):
     fig, ((h1, i1), (h2, i2)) = plt.subplots(2, 2, figsize=(5, 4))
     h1.set_title('Histogram')
