@@ -32,13 +32,9 @@ def linear_transform(img: ndarray, shift: float = 0) -> ndarray:
 
 
 def stretching(img: ndarray, a: float = 1) -> ndarray:
-    new_img = ndarray(img.shape)
     i_max = np.max(img)
     i_min = np.min(img)
-    for j in range(img.shape[0]):
-        for k in range(img.shape[1]):
-            new_img[j][k] = pow((img[j][k] - i_min)/(i_max - i_min), a)
-    return denorm_image(new_img)
+    return (255*(np.power((img - i_min)/(i_max - i_min), a))).astype(np.uint8)
 
 
 def plot_histogram(hist: ndarray, subplot, title=None, label_y=None):
@@ -65,14 +61,9 @@ def plot_images_comparison(hist1: ndarray, img1, hist2, img2):
     plt.show()
 
 
-def denorm_image(img: ndarray):
-    return img * 255
-
-
 if __name__ == "__main__":
     image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
     histogram = cv.calcHist([image], [0], None, [256], [0, 256])
-    image_2 = stretching(image, 0.7)
+    image_2 = stretching(image, 1.9)
     histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
     plot_images_comparison(histogram, image, histogram_2, image_2)
-
