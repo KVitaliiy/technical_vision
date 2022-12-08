@@ -8,8 +8,8 @@ from math import pow
 import matplotlib.cm as cm
 
 
-EXTENSIONS_FOTO = [".jpg", ".jfif", ".png"]
-PATH_TO_FOTO = "images"
+EXTENSIONS_PHOTO = [".jpg", ".jfif", ".png"]
+PATH_TO_PHOTO = "images"
 
 
 def get_image_with_min_contrast(path_to_dir: Path):
@@ -17,7 +17,7 @@ def get_image_with_min_contrast(path_to_dir: Path):
     result_img = None
     for file in listdir(path_to_dir):
         extension = splitext(file)[1]
-        if extension in EXTENSIONS_FOTO:
+        if extension in EXTENSIONS_PHOTO:
             file = join(path_to_dir, file)
             img = cv.imread(file, cv.IMREAD_GRAYSCALE)
             contrast = np.max(img) - np.min(img)
@@ -61,7 +61,7 @@ def plot_hists_images(hist1, img1, hist2, img2):
 
 
 if __name__ == "__main__":
-    image = get_image_with_min_contrast(Path(PATH_TO_FOTO))
+    image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
     histogram = cv.calcHist([image], [0], None, [256], [0, 256])
     image_2 = linear_transform(image, 2)
     # histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
