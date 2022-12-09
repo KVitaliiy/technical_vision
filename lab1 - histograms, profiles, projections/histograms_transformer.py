@@ -71,6 +71,19 @@ def two_thirds_low_transform(img: ndarray, cum_hist: ndarray):
     return new_img.astype(np.uint8)
 
 
+def hyperbolic_transform(img: ndarray, cum_hist: ndarray, a=None):
+    if a is None:
+        a = np.min(img)
+    if a == 0 or a == 1:
+        a = 2
+    new_img = ndarray(img.shape)
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            print(cum_hist[img[x][y]])
+            new_img[x][y] = 255*np.power(a, cum_hist[img[x][y]])
+    return new_img.astype(np.uint8)
+
+
 def plot_histogram(hist: ndarray, subplot, title=None, label_y=None):
     subplot.set_title(title)
     subplot.set_xlim([0, 255])
@@ -116,7 +129,7 @@ if __name__ == "__main__":
     print(image.shape)
     histogram = cv.calcHist([image], [0], None, [256], [0, 256])
     cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    image_2 = two_thirds_low_transform(image, cumh)
+    image_2 = hyperbolic_transform(image, cumh)
     print(image_2)
     print(type(image_2))
     print(image_2.shape)
