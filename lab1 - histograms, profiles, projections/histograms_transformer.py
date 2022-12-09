@@ -53,12 +53,21 @@ def exponential_transform(img: ndarray, cum_hist: ndarray, a: float = 0.01) -> n
     return new_img.astype(np.uint8)
 
 
-def rayleigh_low_transform(img: ndarray, cum_hist, a: float = 100):
+def rayleigh_low_transform(img: ndarray, cum_hist: ndarray, a: float = 100):
     i_min = np.min(img)
     new_img = ndarray(img.shape)
     for x in range(img.shape[0]):
         for y in range(img.shape[1]):
             new_img[x][y] = i_min + np.power(2*np.power(a, 2) * np.log(1 / (1 - cum_hist[img[x][y]])), 0.5)
+    return new_img.astype(np.uint8)
+
+
+def two_thirds_low_transform(img: ndarray, cum_hist: ndarray):
+    new_img = ndarray(img.shape)
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            print(cum_hist[img[x][y]])
+            new_img[x][y] = 255*np.power((cum_hist[img[x][y]]), 2/3)
     return new_img.astype(np.uint8)
 
 
@@ -107,7 +116,7 @@ if __name__ == "__main__":
     print(image.shape)
     histogram = cv.calcHist([image], [0], None, [256], [0, 256])
     cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    image_2 = rayleigh_low_transform(image, cumh, 70)
+    image_2 = two_thirds_low_transform(image, cumh)
     print(image_2)
     print(type(image_2))
     print(image_2.shape)
