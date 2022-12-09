@@ -30,17 +30,35 @@ def linear_transform(img: ndarray, shift: float = 0) -> ndarray:
     return img + shift
 
 
-def stretching(img: ndarray, a: float = 1) -> ndarray:
+def stretching_transform(img: ndarray, a: float = 1) -> ndarray:
     i_max, i_min = np.max(img), np.min(img)
     return (255*(np.power((img - i_min)/(i_max - i_min), a))).astype(np.uint8)
 
 
-def even_transformation(img: ndarray, cum_hist: ndarray) -> ndarray:
+def uniform_transform(img: ndarray, cum_hist: ndarray) -> ndarray:
     i_max, i_min = np.max(img), np.min(img)
     new_img = ndarray(img.shape)
     for x in range(img.shape[0]):
         for y in range(img.shape[1]):
             new_img[x][y] = (i_max - i_min) * cum_hist[img[x][y]] + i_min
+    return new_img.astype(np.uint8)
+
+
+def exponential_transform(img: ndarray, cum_hist: ndarray, a: float = 0.01) -> ndarray:
+    i_min = np.min(img)
+    new_img = ndarray(img.shape)
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            new_img[x][y] = i_min - 1/a * np.log(1 - cum_hist[img[x][y]])
+    return new_img.astype(np.uint8)
+
+
+def rayleigh_low_transform(img: ndarray, cum_hist, a: float = 100):
+    i_min = np.min(img)
+    new_img = ndarray(img.shape)
+    for x in range(img.shape[0]):
+        for y in range(img.shape[1]):
+            new_img[x][y] = i_min + np.power(2*np.power(a, 2) * np.log(1 / (1 - cum_hist[img[x][y]])), 0.5)
     return new_img.astype(np.uint8)
 
 
@@ -89,7 +107,7 @@ if __name__ == "__main__":
     print(image.shape)
     histogram = cv.calcHist([image], [0], None, [256], [0, 256])
     cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    image_2 = even_transformation(image, cumh)
+    image_2 = rayleigh_low_transform(image, cumh, 70)
     print(image_2)
     print(type(image_2))
     print(image_2.shape)
