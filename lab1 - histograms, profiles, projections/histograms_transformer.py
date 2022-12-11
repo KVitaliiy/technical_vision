@@ -5,7 +5,7 @@ import numpy as np
 from numpy import ndarray
 import cv2 as cv
 from matplotlib import pyplot as plt
-
+from math import sin
 
 EXTENSIONS_PHOTO = [".jpg", ".jfif", ".png"]
 PATH_TO_PHOTO = "images"
@@ -84,6 +84,26 @@ def hyperbolic_transform(img: ndarray, cum_hist: ndarray, a=None):
     return new_img.astype(np.uint8)
 
 
+def create_sabattier_lut():
+    lut = np.arange(256, dtype=np.uint8)
+    lut = 4*lut*(255-lut)
+    lut = np.where(lut > 0, lut, 0)
+    lut = np.clip(lut, 0, 255)
+    return lut
+
+
+def projection_y(img):
+    return np.sum(img, (1, 2)) / 255 / image.shape[1]
+
+
+def plot_projection_y(projection, len_y, subplot, title=None, label_y=None):
+    subplot.set_title(title)
+    subplot.set_xlim([0, int(np.max(projection))])
+    subplot.set_ylim([0, len_y])
+    subplot.plot(list(range(len_y)), list(projection))
+    subplot.set_ylabel(label_y)
+
+
 def plot_histogram(hist: ndarray, subplot, title=None, label_y=None):
     subplot.set_title(title)
     subplot.set_xlim([0, 255])
@@ -106,12 +126,18 @@ def plot_image(img: ndarray, subplot, title=None):
     subplot.axis('off')
 
 
+def plot_img_projections(img, projection_y):
+    fig, (i1, prx) = plt.subplots(2, 1, figsize=(5, 5))
+    plot_image(img, i1)
+    plot_projection_y(projection_y, img.shape[0], prx)
+
+
 def plot_images_comparison(hist1: ndarray, img1: ndarray, cum_hist1: ndarray,
                            hist2: ndarray, img2: ndarray, cum_hist2: ndarray):
     fig, ((ch1, h1, i1), (ch2, h2, i2)) = plt.subplots(2, 3, figsize=(7, 4.6))
     plot_cum_histogram(cum_hist1, ch1, 'Cumulative histogram', 'original')
     plot_histogram(hist1, h1, 'Histogram')
-    plot_image(img1, i1, 'Castle')
+    plot_image(img1, i1, 'dog')
     plot_cum_histogram(cum_hist2, ch2, label_y='after transformation')
     plot_histogram(hist2, h2)
     plot_image(img2, i2)
@@ -124,15 +150,13 @@ def cum_histogram(hist, num_rows, num_column):
 
 
 if __name__ == "__main__":
-    image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
-    print(image)
-    print(image.shape)
-    histogram = cv.calcHist([image], [0], None, [256], [0, 256])
-    cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    image_2 = hyperbolic_transform(image, cumh)
-    print(image_2)
-    print(type(image_2))
-    print(image_2.shape)
-    histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
-    cumh_2 = cum_histogram(histogram_2, image.shape[0], image.shape[1])
-    plot_images_comparison(histogram, image, cumh, histogram_2, image_2, cumh_2)
+    # image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
+    image = cv.imread("images/ship.jpg", cv.IMREAD_COLOR)
+    proj_y = projection_y(image)
+    plot_img_projections(image, proj_y)
+    # histogram = cv.calcHist([image], [0], None, [256], [0, 256])
+    # cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
+    # image_2 = cv.LUT(image, create_sabattier_lut())
+    # histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
+    # cumh_2 = cum_histogram(histogram_2, image.shape[0], image.shape[1])
+    # plot_images_comparison(histogram, image, cumh, histogram_2, image_2, cumh_2)
