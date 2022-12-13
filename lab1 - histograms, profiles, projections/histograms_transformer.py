@@ -5,7 +5,6 @@ import numpy as np
 from numpy import ndarray
 import cv2 as cv
 from matplotlib import pyplot as plt
-from math import sin
 
 EXTENSIONS_PHOTO = [".jpg", ".jfif", ".png"]
 PATH_TO_PHOTO = "images"
@@ -93,14 +92,28 @@ def create_sabattier_lut():
 
 
 def projection_y(img):
-    return np.sum(img, (1, 2)) / 255 / image.shape[1]
+    return np.sum(img, 1) / 255
+
+
+def projection_x(img):
+    return np.sum(img, 0) / 255
 
 
 def plot_projection_y(projection, len_y, subplot, title=None, label_y=None):
+    padding = 1.1
     subplot.set_title(title)
-    subplot.set_xlim([0, int(np.max(projection))])
+    subplot.set_xlim([0, int(np.max(projection))*padding])
     subplot.set_ylim([0, len_y])
-    subplot.plot(list(range(len_y)), list(projection))
+    subplot.plot(list(projection), list(range(len_y)))
+    subplot.set_ylabel(label_y)
+
+
+def plot_projection_x(projection, len_x, subplot, title=None, label_y=None):
+    padding = 1.1
+    subplot.set_title(title)
+    subplot.set_xlim([0, len_x])
+    subplot.set_ylim([0, int(np.max(projection)*padding)])
+    subplot.plot((range(len_x)), projection)
     subplot.set_ylabel(label_y)
 
 
@@ -126,10 +139,13 @@ def plot_image(img: ndarray, subplot, title=None):
     subplot.axis('off')
 
 
-def plot_img_projections(img, projection_y):
-    fig, (i1, prx) = plt.subplots(2, 1, figsize=(5, 5))
-    plot_image(img, i1)
-    plot_projection_y(projection_y, img.shape[0], prx)
+def plot_img_projections(img, projection_y, projection_x):
+    fig, (i1, prx, pry) = plt.subplots(3, 1, figsize=(5, 5))
+    plot_image(img, i1, 'ship')
+    plot_projection_x(projection_x, img.shape[0], prx, 'Projection x')
+    plot_projection_y(projection_y, img.shape[1], pry, 'Projection y')
+    fig.tight_layout()
+    plt.show()
 
 
 def plot_images_comparison(hist1: ndarray, img1: ndarray, cum_hist1: ndarray,
@@ -151,12 +167,14 @@ def cum_histogram(hist, num_rows, num_column):
 
 if __name__ == "__main__":
     # image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
-    image = cv.imread("images/ship.jpg", cv.IMREAD_COLOR)
+    image = cv.imread("images/helicopter.jpg", cv.IMREAD_GRAYSCALE)
+    print(image.shape)
     proj_y = projection_y(image)
-    plot_img_projections(image, proj_y)
-    # histogram = cv.calcHist([image], [0], None, [256], [0, 256])
-    # cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    # image_2 = cv.LUT(image, create_sabattier_lut())
-    # histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
-    # cumh_2 = cum_histogram(histogram_2, image.shape[0], image.shape[1])
+    proj_x = projection_x(image)
+    plot_img_projections(image, proj_x, proj_y)
+    histogram = cv.calcHist([image], [0], None, [256], [0, 256])
+    cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
+    image_2 = cv.LUT(image, create_sabattier_lut())
+    histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
+    cumh_2 = cum_histogram(histogram_2, image.shape[0], image.shape[1])
     # plot_images_comparison(histogram, image, cumh, histogram_2, image_2, cumh_2)
