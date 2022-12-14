@@ -5,7 +5,7 @@ import numpy as np
 from numpy import ndarray
 import cv2 as cv
 from matplotlib import pyplot as plt
-from matplotlib.collections import LineCollection
+from matplotlib.patches import Rectangle
 
 EXTENSIONS_PHOTO = [".jpg", ".jfif", ".png"]
 PATH_TO_PHOTO = "images"
@@ -136,13 +136,13 @@ def plot_cum_histogram(hist: ndarray, subplot, title=None, label_y=None):
 
 def plot_image(img: ndarray, subplot, title=None):
     subplot.set_title(title)
-    subplot.imshow(img, origin='lower', cmap='gray', aspect='auto')
-    # subplot.axis('off')
+    subplot.imshow(img, cmap='gray', aspect='auto')
+    subplot.axis('off')
 
 
 def plot_img_projections(img, projection_y, projection_x):
     fig, ((i1, pry), (prx, empty)) = plt.subplots(2, 2, figsize=(5, 4))
-    plot_image(img, i1, 'helicopter')
+    plot_image(img, i1, 'moon')
     plot_projection_x(projection_x, img.shape[1], prx, 'Projection x')
     plot_projection_y(projection_y, img.shape[0], pry, 'Projection y')
     empty.axis('off')
@@ -163,15 +163,11 @@ def plot_images_comparison(hist1: ndarray, img1: ndarray, cum_hist1: ndarray,
     plt.show()
 
 
-def plot_squared_border_image(img: ndarray, points: list, title: str):
-    lines = [(points[0], points[1]), (points[1], points[2]), (points[2], points[3]), (points[3], points[0])]
-    lc = LineCollection(lines, colors='red', linewidths=2)
-    fig, ax = plt.subplots()
-    ax.set_title(title)
-    ax.imshow(img, cmap='gray')
-    ax.add_collection(lc)
-    ax.axis('off')
-    plt.show()
+def plot_squared_border_image(img: ndarray, point: tuple, side_a, side_b: int):
+    plt.imshow(img, cmap='gray', origin='lower')
+    plt.gca().add_patch(Rectangle(point, side_a, side_b, linewidth=1, edgecolor='r', fill=False))
+    plt.axis('off')
+    plt.savefig('moon_with_borders.png', bbox_inches='tight', pad_inches=0)
 
 
 def cum_histogram(hist, num_rows, num_column):
@@ -182,11 +178,11 @@ if __name__ == "__main__":
     # image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
     image = cv.imread("images/moon.jpg", cv.IMREAD_GRAYSCALE)
     print(image)
-    plot_squared_border_image(image, [(380, 180), (525, 180), (525, 315), (380, 315)], 'helicopter')
-    print(image.shape)
-    proj_y = projection_y(image)
-    proj_x = projection_x(image)
-    plot_img_projections(image, proj_x, proj_y)
+    plot_squared_border_image(image, (385, 180), 140, 135)
+    # print(image.shape)
+    # proj_y = projection_y(image)
+    # proj_x = projection_x(image)
+    # plot_img_projections(image, proj_x, proj_y)
     # histogram = cv.calcHist([image], [0], None, [256], [0, 256])
     # cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
     # image_2 = cv.LUT(image, create_sabattier_lut())
