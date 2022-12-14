@@ -100,6 +100,14 @@ def projection_x(img):
     return np.sum(img, 1) / 255
 
 
+def profile_x(img):
+    return img[img.shape[1] // 2]
+
+
+def profile_y(img):
+    return img[round(img.shape[0] / 2), :]
+
+
 def plot_projection_y(projection, len_y, subplot, title=None, label_y=None):
     padding = 1.1
     subplot.set_title(title)
@@ -150,6 +158,22 @@ def plot_img_projections(img, projection_y, projection_x):
     plt.show()
 
 
+def plot_profile_x(prf: ndarray, subplot, title=''):
+    shift = 1.1
+    subplot.set_title(title)
+    subplot.set_xlim(len(prf))
+    subplot.set_ylim(shift*max(prf))
+    subplot.plot(list(range(len(prf))), list(prf))
+    subplot.invert_yaxis()
+
+
+def plot_profile_x_image(img, profile):
+    fig, (i, pr) = plt.subplots(2, 1, figsize=(10, 7))
+    plot_image(img, i, 'barcode')
+    plot_profile_x(profile, pr)
+    plt.show()
+
+
 def plot_images_comparison(hist1: ndarray, img1: ndarray, cum_hist1: ndarray,
                            hist2: ndarray, img2: ndarray, cum_hist2: ndarray):
     fig, ((ch1, h1, i1), (ch2, h2, i2)) = plt.subplots(2, 3, figsize=(7, 4.6))
@@ -174,18 +198,5 @@ def cum_histogram(hist, num_rows, num_column):
     return np.cumsum(hist) / (num_rows * num_column)
 
 
-if __name__ == "__main__":
-    # image = get_image_with_min_contrast(Path(PATH_TO_PHOTO))
-    image = cv.imread("images/moon.jpg", cv.IMREAD_GRAYSCALE)
-    print(image)
-    plot_squared_border_image(image, (385, 180), 140, 135)
-    # print(image.shape)
-    # proj_y = projection_y(image)
-    # proj_x = projection_x(image)
-    # plot_img_projections(image, proj_x, proj_y)
-    # histogram = cv.calcHist([image], [0], None, [256], [0, 256])
-    # cumh = cum_histogram(histogram, image.shape[0], image.shape[1])
-    # image_2 = cv.LUT(image, create_sabattier_lut())
-    # histogram_2 = cv.calcHist([image_2], [0], None, [256], [0, 256])
-    # cumh_2 = cum_histogram(histogram_2, image.shape[0], image.shape[1])
-    # plot_images_comparison(histogram, image, cumh, histogram_2, image_2, cumh_2)
+if __name__ == '__main__':
+    pass
